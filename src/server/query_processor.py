@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from gitingest.clone import clone_repo
 from gitingest.ingestion import ingest_query
@@ -13,7 +12,6 @@ from server.server_config import (
     DEFAULT_FILE_SIZE_KB,
     EXAMPLE_REPOS,
     MAX_DISPLAY_SIZE,
-    templates,
 )
 from server.server_utils import Colors, log_slider_to_size
 
@@ -31,7 +29,7 @@ async def process_query(
     pattern: str = "",
     is_index: bool = False,
     token: str | None = None,
-) -> _TemplateResponse:
+) -> dict[str, Any]:
     """Process a query by parsing input, cloning a repository, and generating a summary.
 
     Handle user input, process Git repository data, and prepare
@@ -56,8 +54,8 @@ async def process_query(
 
     Returns
     -------
-    _TemplateResponse
-        Rendered template response containing the processed results or an error message.
+    dict[str, Any]
+        A dictionary containing the processed results or an error message.
 
     Raises
     ------
@@ -75,12 +73,9 @@ async def process_query(
         msg = f"Invalid pattern type: {pattern_type}"
         raise ValueError(msg)
 
-    template = "index.jinja" if is_index else "git.jinja"
-    template_response = partial(templates.TemplateResponse, name=template)
     max_file_size = log_slider_to_size(slider_position)
 
     context = {
-        "request": request,
         "repo_url": input_text,
         "examples": EXAMPLE_REPOS if is_index else [],
         "default_file_size": slider_position,
@@ -122,12 +117,12 @@ async def process_query(
             print(f"{Colors.BROWN}WARN{Colors.END}: {Colors.RED}<-  {Colors.END}", end="")
             print(f"{Colors.RED}{exc}{Colors.END}")
 
-        context["error_message"] = f"Error: {exc}"
+        context["error"] = f"Error: {exc}"
         if "405" in str(exc):
-            context["error_message"] = (
+            context["error"] = (
                 "Repository not found. Please make sure it is public (private repositories will be supported soon)"
             )
-        return template_response(context=context)
+        return context
 
     if len(content) > MAX_DISPLAY_SIZE:
         content = (
@@ -152,11 +147,10 @@ async def process_query(
             "summary": summary,
             "tree": tree,
             "content": content,
-            "ingest_id": query.id,
         },
     )
 
-    return template_response(context=context)
+    return context
 
 
 def _print_query(url: str, max_file_size: int, pattern_type: str, pattern: str) -> None:
