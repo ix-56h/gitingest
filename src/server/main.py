@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
@@ -14,7 +14,6 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from server.routers import dynamic, index
 from server.routers.ingest import router as ingest
-from server.server_config import templates
 from server.server_utils import lifespan, limiter, rate_limit_exception_handler
 
 # Load environment variables from .env file
@@ -72,6 +71,7 @@ async def head_root() -> HTMLResponse:
 
     """
     return HTMLResponse(content=None, headers={"content-type": "text/html; charset=utf-8"})
+
 
 @app.get("/robots.txt", include_in_schema=False)
 async def robots() -> FileResponse:

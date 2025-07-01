@@ -3,9 +3,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from gitingest.utils.compat_typing import Annotated
 from server.server_config import templates
-from server.server_utils import limiter
 
 router = APIRouter()
 

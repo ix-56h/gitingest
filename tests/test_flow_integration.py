@@ -32,9 +32,6 @@ def mock_static_files(mocker: MockerFixture) -> None:
     return mock_static
 
 
-
-
-
 @pytest.fixture(scope="module", autouse=True)
 def cleanup_tmp_dir() -> Generator[None, None, None]:
     """Remove ``/tmp/gitingest`` after this test-module is done."""
@@ -61,7 +58,7 @@ async def test_remote_repository_analysis(request: pytest.FixtureRequest) -> Non
 
     response = client.post("/api/ingest", data=form_data)
     assert response.status_code == status.HTTP_200_OK, f"Form submission failed: {response.text}"
-    
+
     # Check that response is JSON
     response_data = response.json()
     assert "result" in response_data
@@ -87,7 +84,7 @@ async def test_invalid_repository_url(request: pytest.FixtureRequest) -> None:
     response = client.post("/api/ingest", data=form_data)
     # Should return 400 for invalid repository
     assert response.status_code == status.HTTP_400_BAD_REQUEST, f"Request failed: {response.text}"
-    
+
     # Check that response is JSON error
     response_data = response.json()
     assert "error" in response_data
@@ -108,8 +105,9 @@ async def test_large_repository(request: pytest.FixtureRequest) -> None:
 
     response = client.post("/api/ingest", data=form_data)
     # This might fail with 400 if repo doesn't exist, or succeed with 200
-    assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"Request failed: {response.text}"
-    
+    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    assert response.status_code in _valid, f"Request failed: {response.text}"
+
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
         assert "result" in response_data
@@ -132,8 +130,9 @@ async def test_concurrent_requests(request: pytest.FixtureRequest) -> None:
             "token": "",
         }
         response = client.post("/api/ingest", data=form_data)
-        assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"Request failed: {response.text}"
-        
+        _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+        assert response.status_code in _valid, f"Request failed: {response.text}"
+
         response_data = response.json()
         if response.status_code == status.HTTP_200_OK:
             assert "result" in response_data
@@ -160,8 +159,9 @@ async def test_large_file_handling(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"Request failed: {response.text}"
-    
+    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    assert response.status_code in _valid, f"Request failed: {response.text}"
+
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
         assert "result" in response_data
@@ -183,8 +183,9 @@ async def test_repository_with_patterns(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"Request failed: {response.text}"
-    
+    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    assert response.status_code in _valid, f"Request failed: {response.text}"
+
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
         assert "result" in response_data

@@ -1,13 +1,9 @@
 """Module defining the FastAPI router for the home page of the application."""
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from gitingest.utils.compat_typing import Annotated
-from server.models import QueryForm
-from server.query_processor import process_query
 from server.server_config import EXAMPLE_REPOS, templates
-from server.server_utils import limiter
 
 router = APIRouter()
 
