@@ -67,6 +67,9 @@ async def process_query(
         msg = f"Invalid pattern type: {pattern_type}"
         raise ValueError(msg)
 
+    if token:
+        validate_github_token(token)
+
     max_file_size = log_slider_to_size(slider_position)
 
     context = {
@@ -113,9 +116,7 @@ async def process_query(
 
         context["error"] = f"Error: {exc}"
         if "405" in str(exc):
-            context["error"] = (
-                "Repository not found. Please make sure it is public (private repositories will be supported soon)"
-            )
+            context["error_message"] = "Repository not found. Please make sure it is public."
         return context
 
     if len(content) > MAX_DISPLAY_SIZE:
