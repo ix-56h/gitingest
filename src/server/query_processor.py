@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 from gitingest.clone import clone_repo
 from gitingest.ingestion import ingest_query
@@ -15,13 +15,8 @@ from server.server_config import (
 )
 from server.server_utils import Colors, log_slider_to_size
 
-if TYPE_CHECKING:
-    from fastapi import Request
-    from starlette.templating import _TemplateResponse
-
 
 async def process_query(
-    request: Request,
     *,
     input_text: str,
     slider_position: int,
@@ -37,8 +32,6 @@ async def process_query(
 
     Parameters
     ----------
-    request : Request
-        The HTTP request object.
     input_text : str
         Input text provided by the user, typically a Git repository URL or slug.
     slider_position : int

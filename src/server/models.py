@@ -13,14 +13,14 @@ from server.form_types import IntForm, OptStrForm, StrForm  # noqa: TC001 (typin
 
 class PatternType(str, Enum):
     """Enumeration for pattern types used in file filtering."""
-    
+
     INCLUDE = "include"
     EXCLUDE = "exclude"
 
 
 class IngestRequest(BaseModel):
     """Request model for the /api/ingest endpoint.
-    
+
     Attributes
     ----------
     input_text : str
@@ -33,32 +33,34 @@ class IngestRequest(BaseModel):
         Glob/regex pattern string for file filtering.
     token : str | None
         GitHub personal access token (PAT) for accessing private repositories.
+
     """
-    
+
     input_text: str = Field(..., description="Git repository URL or slug to ingest")
     max_file_size: int = Field(..., ge=0, le=500, description="File size slider position (0-500)")
     pattern_type: PatternType = Field(default=PatternType.EXCLUDE, description="Pattern type for file filtering")
     pattern: str = Field(default="", description="Glob/regex pattern for file filtering")
     token: str | None = Field(default=None, description="GitHub PAT for private repositories")
-    
-    @field_validator('input_text')
+
+    @field_validator("input_text")
     @classmethod
-    def validate_input_text(cls, v):
+    def validate_input_text(cls, v: str) -> str:
         """Validate that input_text is not empty."""
         if not v.strip():
-            raise ValueError('input_text cannot be empty')
+            err = "input_text cannot be empty"
+            raise ValueError(err)
         return v.strip()
-    
-    @field_validator('pattern')
+
+    @field_validator("pattern")
     @classmethod
-    def validate_pattern(cls, v):
+    def validate_pattern(cls, v: str) -> str:
         """Validate pattern field."""
         return v.strip() if v else ""
 
 
 class IngestSuccessResponse(BaseModel):
     """Success response model for the /api/ingest endpoint.
-    
+
     Attributes
     ----------
     result : Literal[True]
@@ -81,8 +83,9 @@ class IngestSuccessResponse(BaseModel):
         The pattern used for filtering.
     token : str | None
         The token used (if any).
+
     """
-    
+
     result: Literal[True] = True
     repo_url: str = Field(..., description="Original repository URL")
     short_repo_url: str = Field(..., description="Short repository URL (user/repo)")
@@ -97,7 +100,7 @@ class IngestSuccessResponse(BaseModel):
 
 class IngestErrorResponse(BaseModel):
     """Error response model for the /api/ingest endpoint.
-    
+
     Attributes
     ----------
     error : str
@@ -112,8 +115,9 @@ class IngestErrorResponse(BaseModel):
         The pattern that was used.
     token : str | None
         The token that was used (if any).
+
     """
-    
+
     error: str = Field(..., description="Error message")
     repo_url: str = Field(..., description="Repository URL that failed")
     default_file_size: int = Field(..., description="File size slider position used")
