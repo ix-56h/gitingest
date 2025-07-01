@@ -63,7 +63,6 @@ class IngestSuccessResponse(BaseModel):
     summary: str = Field(..., description="Ingestion summary with token estimates")
     tree: str = Field(..., description="File tree structure")
     content: str = Field(..., description="Processed file content")
-    ingest_id: str = Field(..., description="Unique ingestion identifier")
     default_file_size: int = Field(..., description="File size slider position used")
     pattern_type: str = Field(..., description="Pattern type used")
     pattern: str = Field(..., description="Pattern used")
@@ -79,7 +78,6 @@ class IngestSuccessResponse(BaseModel):
   "summary": "Processed 50 files, estimated tokens: 15,000",
   "tree": "gitingest/\n├── src/\n│   ├── server/\n│   └── gitingest/\n└── README.md",
   "content": "Repository content here...",
-  "ingest_id": "abc123",
   "default_file_size": 243,
   "pattern_type": "exclude",
   "pattern": "*.md",
