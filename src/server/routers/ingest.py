@@ -1,6 +1,6 @@
 """Ingest endpoint for the API."""
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
 
 from server.form_types import IntForm, OptStrForm, StrForm
@@ -14,9 +14,9 @@ router = APIRouter()
 @router.post(
     "/api/ingest",
     responses={
-        200: {"model": IngestSuccessResponse, "description": "Successful ingestion"},
-        400: {"model": IngestErrorResponse, "description": "Bad request or processing error"},
-        500: {"model": IngestErrorResponse, "description": "Internal server error"},
+        status.HTTP_200_OK: {"model": IngestSuccessResponse, "description": "Successful ingestion"},
+        status.HTTP_400_BAD_REQUEST: {"model": IngestErrorResponse, "description": "Bad request or processing error"},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": IngestErrorResponse, "description": "Internal server error"},
     },
 )
 @limiter.limit("10/minute")
@@ -83,7 +83,7 @@ async def api_ingest(
                 token=token,
             )
             return JSONResponse(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 content=error_response.model_dump(),
             )
 
@@ -101,7 +101,7 @@ async def api_ingest(
             token=context.get("token"),
         )
         return JSONResponse(
-            status_code=200,
+            status_code=status.HTTP_200_OK,
             content=success_response.model_dump(),
         )
 
@@ -116,7 +116,7 @@ async def api_ingest(
             token=token,
         )
         return JSONResponse(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             content=error_response.model_dump(),
         )
 
@@ -131,6 +131,6 @@ async def api_ingest(
             token=token,
         )
         return JSONResponse(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response.model_dump(),
         )
