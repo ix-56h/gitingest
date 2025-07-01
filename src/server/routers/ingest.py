@@ -1,6 +1,6 @@
 """Ingest endpoint for the API."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from server.form_types import IntForm, OptStrForm, StrForm
@@ -21,7 +21,7 @@ router = APIRouter()
 )
 @limiter.limit("10/minute")
 async def api_ingest(
-    *,
+    request: Request,  # noqa: ARG001 (unused) pylint: disable=unused-argument
     input_text: StrForm,
     max_file_size: IntForm,
     pattern_type: StrForm = "exclude",
@@ -36,6 +36,8 @@ async def api_ingest(
 
     Parameters
     ----------
+    request : Request
+        FastAPI request object
     input_text : StrForm
         Git repository URL or slug to ingest
     max_file_size : IntForm
