@@ -8,6 +8,7 @@ from typing import Any, cast
 from gitingest.clone import clone_repo
 from gitingest.ingestion import ingest_query
 from gitingest.query_parser import IngestionQuery, parse_query
+from gitingest.utils.git_utils import validate_github_token
 from server.server_config import (
     DEFAULT_FILE_SIZE_KB,
     EXAMPLE_REPOS,
