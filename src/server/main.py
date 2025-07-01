@@ -72,6 +72,7 @@ async def head_root() -> HTMLResponse:
     """
     return HTMLResponse(content=None, headers={"content-type": "text/html; charset=utf-8"})
 
+
 @app.get("/robots.txt", include_in_schema=False)
 async def robots() -> FileResponse:
     """Serve the ``robots.txt`` file to guide search engine crawlers.

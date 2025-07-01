@@ -238,13 +238,13 @@ function downloadFullDigest() {
     const summary = document.getElementById('result-summary').value;
     const directoryStructure = document.getElementById('directory-structure-content').value;
     const filesContent = document.querySelector('.result-text').value;
-    
+
     // Create the full content with all three sections
     const fullContent = `${summary}\n${directoryStructure}\n${filesContent}`;
-    
+
     // Create a blob with the content
     const blob = new Blob([fullContent], { type: 'text/plain' });
-    
+
     // Create a download link
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -252,22 +252,22 @@ function downloadFullDigest() {
     a.download = 'codebase-digest.txt';
     document.body.appendChild(a);
     a.click();
-    
+
     // Clean up
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    
+
     // Show feedback on the button
     const button = document.querySelector('[onclick="downloadFullDigest()"]');
     const originalText = button.innerHTML;
-    
+
     button.innerHTML = `
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
         Downloaded!
     `;
-    
+
     setTimeout(() => {
         button.innerHTML = originalText;
     }, 2000);
