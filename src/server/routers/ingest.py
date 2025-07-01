@@ -77,10 +77,6 @@ async def api_ingest(
             error_response = IngestErrorResponse(
                 error=context["error"],
                 repo_url=context.get("repo_url", input_text),
-                default_file_size=context.get("default_file_size", max_file_size),
-                pattern_type=context.get("pattern_type", pattern_type),
-                pattern=context.get("pattern", pattern),
-                token=token,
             )
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -89,7 +85,6 @@ async def api_ingest(
 
         # Return structured success response with 200 status code
         success_response = IngestSuccessResponse(
-            result=True,
             repo_url=context["repo_url"],
             short_repo_url=context["short_repo_url"],
             summary=context["summary"],
@@ -98,7 +93,6 @@ async def api_ingest(
             default_file_size=context["default_file_size"],
             pattern_type=context["pattern_type"],
             pattern=context["pattern"],
-            token=context.get("token"),
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -110,10 +104,6 @@ async def api_ingest(
         error_response = IngestErrorResponse(
             error=f"Validation error: {ve!s}",
             repo_url=input_text,
-            default_file_size=max_file_size,
-            pattern_type=pattern_type,
-            pattern=pattern,
-            token=token,
         )
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -125,10 +115,6 @@ async def api_ingest(
         error_response = IngestErrorResponse(
             error=f"Internal server error: {exc!s}",
             repo_url=input_text,
-            default_file_size=max_file_size,
-            pattern_type=pattern_type,
-            pattern=pattern,
-            token=token,
         )
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -61,8 +61,8 @@ async def test_remote_repository_analysis(request: pytest.FixtureRequest) -> Non
 
     # Check that response is JSON
     response_data = response.json()
-    assert "result" in response_data
-    assert response_data["result"]
+    assert "content" in response_data
+    assert response_data["content"]
     assert "repo_url" in response_data
     assert "summary" in response_data
     assert "tree" in response_data
@@ -110,8 +110,8 @@ async def test_large_repository(request: pytest.FixtureRequest) -> None:
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
-        assert "result" in response_data
-        assert response_data["result"]
+        assert "content" in response_data
+        assert response_data["content"]
     else:
         assert "error" in response_data
 
@@ -135,8 +135,8 @@ async def test_concurrent_requests(request: pytest.FixtureRequest) -> None:
 
         response_data = response.json()
         if response.status_code == status.HTTP_200_OK:
-            assert "result" in response_data
-            assert response_data["result"]
+            assert "content" in response_data
+            assert response_data["content"]
         else:
             assert "error" in response_data
 
@@ -164,8 +164,8 @@ async def test_large_file_handling(request: pytest.FixtureRequest) -> None:
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
-        assert "result" in response_data
-        assert response_data["result"]
+        assert "content" in response_data
+        assert response_data["content"]
     else:
         assert "error" in response_data
 
@@ -188,8 +188,7 @@ async def test_repository_with_patterns(request: pytest.FixtureRequest) -> None:
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
-        assert "result" in response_data
-        assert response_data["result"]
+        assert "content" in response_data
         assert "pattern_type" in response_data
         assert response_data["pattern_type"] == "include"
         assert "pattern" in response_data

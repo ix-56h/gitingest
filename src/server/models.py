@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal, Union
+from typing import Union
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -63,8 +63,6 @@ class IngestSuccessResponse(BaseModel):
 
     Attributes
     ----------
-    result : Literal[True]
-        Always True for successful responses.
     repo_url : str
         The original repository URL that was processed.
     short_repo_url : str
@@ -81,12 +79,9 @@ class IngestSuccessResponse(BaseModel):
         The pattern type used for filtering.
     pattern : str
         The pattern used for filtering.
-    token : str | None
-        The token used (if any).
 
     """
 
-    result: Literal[True] = True
     repo_url: str = Field(..., description="Original repository URL")
     short_repo_url: str = Field(..., description="Short repository URL (user/repo)")
     summary: str = Field(..., description="Ingestion summary with token estimates")
@@ -95,7 +90,6 @@ class IngestSuccessResponse(BaseModel):
     default_file_size: int = Field(..., description="File size slider position used")
     pattern_type: str = Field(..., description="Pattern type used")
     pattern: str = Field(..., description="Pattern used")
-    token: str | None = Field(None, description="Token used (if any)")
 
 
 class IngestErrorResponse(BaseModel):
@@ -107,23 +101,11 @@ class IngestErrorResponse(BaseModel):
         Error message describing what went wrong.
     repo_url : str
         The repository URL that failed to process.
-    default_file_size : int
-        The file size slider position that was used.
-    pattern_type : str
-        The pattern type that was used.
-    pattern : str
-        The pattern that was used.
-    token : str | None
-        The token that was used (if any).
 
     """
 
     error: str = Field(..., description="Error message")
     repo_url: str = Field(..., description="Repository URL that failed")
-    default_file_size: int = Field(..., description="File size slider position used")
-    pattern_type: str = Field(..., description="Pattern type used")
-    pattern: str = Field(..., description="Pattern used")
-    token: str | None = Field(None, description="Token used (if any)")
 
 
 # Union type for API responses

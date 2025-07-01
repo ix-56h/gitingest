@@ -134,7 +134,6 @@ async def process_query(
 
     context.update(
         {
-            "result": True,
             "summary": summary,
             "tree": tree,
             "content": content,
