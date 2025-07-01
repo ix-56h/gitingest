@@ -13,14 +13,12 @@ from server.form_types import IntForm, OptStrForm, StrForm  # noqa: TC001 (typin
 
 class PatternType(str, Enum):
     """Enumeration for pattern types used in file filtering."""
-
     INCLUDE = "include"
     EXCLUDE = "exclude"
 
 
 class IngestRequest(BaseModel):
     """Request model for the /api/ingest endpoint.
-
     Attributes
     ----------
     input_text : str
@@ -60,7 +58,6 @@ class IngestRequest(BaseModel):
 
 class IngestSuccessResponse(BaseModel):
     """Success response model for the /api/ingest endpoint.
-
     Attributes
     ----------
     result : Literal[True]
@@ -100,7 +97,6 @@ class IngestSuccessResponse(BaseModel):
 
 class IngestErrorResponse(BaseModel):
     """Error response model for the /api/ingest endpoint.
-
     Attributes
     ----------
     error : str

@@ -36,4 +36,8 @@ async def catch_all(request: Request, full_path: str) -> HTMLResponse:
             "repo_url": full_path,
             "default_file_size": 243,
         },
+<<<<<<< HEAD
     )
+=======
+    )
+>>>>>>> 8596d46 (WIP: Refactor backend to a rest api and make weak changes to the front to make it works)

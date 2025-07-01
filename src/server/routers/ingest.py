@@ -53,7 +53,6 @@ async def api_ingest(
     -------
     JSONResponse
         Success response with ingestion results or error response with appropriate HTTP status code
-
     """
     try:
         # Validate input using Pydantic model
@@ -73,7 +72,6 @@ async def api_ingest(
             is_index=True,
             token=ingest_request.token,
         )
-
         if "error" in context:
             # Return structured error response with 400 status code
             error_response = IngestErrorResponse(
