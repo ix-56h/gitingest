@@ -18,12 +18,10 @@ from server.server_utils import Colors, log_slider_to_size
 
 
 async def process_query(
-    *,
     input_text: str,
     slider_position: int,
     pattern_type: str = "exclude",
     pattern: str = "",
-    is_index: bool = False,
     token: str | None = None,
 ) -> dict[str, Any]:
     """Process a query by parsing input, cloning a repository, and generating a summary.
@@ -41,8 +39,6 @@ async def process_query(
         Type of pattern to use (either "include" or "exclude") (default: ``"exclude"``).
     pattern : str
         Pattern to include or exclude in the query, depending on the pattern type.
-    is_index : bool
-        Flag indicating whether the request is for the index page (default: ``False``).
     token : str | None
         GitHub personal access token (PAT) for accessing private repositories.
 
@@ -74,7 +70,7 @@ async def process_query(
 
     context = {
         "repo_url": input_text,
-        "examples": EXAMPLE_REPOS if is_index else [],
+        "examples": EXAMPLE_REPOS,
         "default_file_size": slider_position,
         "pattern_type": pattern_type,
         "pattern": pattern,

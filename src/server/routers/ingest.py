@@ -70,7 +70,6 @@ async def api_ingest(
             slider_position=ingest_request.max_file_size,
             pattern_type=ingest_request.pattern_type,
             pattern=ingest_request.pattern,
-            is_index=True,
             token=ingest_request.token,
         )
         if "error" in context:

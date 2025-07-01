@@ -105,7 +105,7 @@ async def test_large_repository(request: pytest.FixtureRequest) -> None:
 
     response = client.post("/api/ingest", data=form_data)
     # This might fail with 400 if repo doesn't exist, or succeed with 200
-    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
     assert response.status_code in _valid, f"Request failed: {response.text}"
 
     response_data = response.json()
@@ -130,7 +130,7 @@ async def test_concurrent_requests(request: pytest.FixtureRequest) -> None:
             "token": "",
         }
         response = client.post("/api/ingest", data=form_data)
-        _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+        _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
         assert response.status_code in _valid, f"Request failed: {response.text}"
 
         response_data = response.json()
@@ -159,7 +159,7 @@ async def test_large_file_handling(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
     assert response.status_code in _valid, f"Request failed: {response.text}"
 
     response_data = response.json()
@@ -183,7 +183,7 @@ async def test_repository_with_patterns(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    _valid = [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
     assert response.status_code in _valid, f"Request failed: {response.text}"
 
     response_data = response.json()

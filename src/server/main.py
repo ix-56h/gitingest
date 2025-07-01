@@ -12,8 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from server.routers import dynamic, index
-from server.routers.ingest import router as ingest
+from server.routers import dynamic, index, ingest
 from server.server_utils import lifespan, limiter, rate_limit_exception_handler
 
 # Load environment variables from .env file
