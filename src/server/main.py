@@ -19,7 +19,7 @@ from server.server_utils import lifespan, limiter, rate_limit_exception_handler
 load_dotenv()
 
 # Initialize the FastAPI application with lifespan
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None)
 app.state.limiter = limiter
 
 # Register the custom exception handler for rate limits
@@ -96,6 +96,12 @@ async def llm_txt() -> FileResponse:
 
     """
     return FileResponse("static/llm.txt")
+
+
+@app.get("/docs", response_class=HTMLResponse)
+async def custom_swagger_ui(request: Request) -> HTMLResponse:
+    """Render the Swagger UI documentation page inside the Jinja theme."""
+    return templates.TemplateResponse("swagger_ui.jinja", {"request": request})
 
 
 # Include routers for modular endpoints
