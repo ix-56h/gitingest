@@ -95,18 +95,17 @@ async def test_invalid_repository_url(request: pytest.FixtureRequest) -> None:
 async def test_large_repository(request: pytest.FixtureRequest) -> None:
     """Simulate analysis of a large repository with nested folders."""
     client = request.getfixturevalue("test_client")
+    # TODO: ingesting a large repo take too much time (eg: godotengine/godot repository)
     form_data = {
-        "input_text": "https://github.com/large/repo-with-many-files",
-        "max_file_size": "243",
+        "input_text": "https://github.com/octocat/hello-world",
+        "max_file_size": "10",
         "pattern_type": "exclude",
         "pattern": "",
         "token": "",
     }
 
     response = client.post("/api/ingest", data=form_data)
-    # This might fail with 400 if repo doesn't exist, or succeed with 200
-    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
-    assert response.status_code in _valid, f"Request failed: {response.text}"
+    assert response.status_code == status.HTTP_200_OK, f"Request failed: {response.text}"
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
@@ -123,15 +122,14 @@ async def test_concurrent_requests(request: pytest.FixtureRequest) -> None:
 
     def make_request() -> None:
         form_data = {
-            "input_text": "https://github.com/octocat/Hello-World",
+            "input_text": "https://github.com/octocat/hello-world",
             "max_file_size": "243",
             "pattern_type": "exclude",
             "pattern": "",
             "token": "",
         }
         response = client.post("/api/ingest", data=form_data)
-        _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
-        assert response.status_code in _valid, f"Request failed: {response.text}"
+        assert response.status_code == status.HTTP_200_OK, f"Request failed: {response.text}"
 
         response_data = response.json()
         if response.status_code == status.HTTP_200_OK:
@@ -159,8 +157,7 @@ async def test_large_file_handling(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
-    assert response.status_code in _valid, f"Request failed: {response.text}"
+    assert response.status_code == status.HTTP_200_OK, f"Request failed: {response.text}"
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:
@@ -183,8 +180,7 @@ async def test_repository_with_patterns(request: pytest.FixtureRequest) -> None:
     }
 
     response = client.post("/api/ingest", data=form_data)
-    _valid = {status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST}
-    assert response.status_code in _valid, f"Request failed: {response.text}"
+    assert response.status_code == status.HTTP_200_OK, f"Request failed: {response.text}"
 
     response_data = response.json()
     if response.status_code == status.HTTP_200_OK:

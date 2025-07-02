@@ -34,9 +34,7 @@
         <img src="https://cdn.devdojo.com/images/january2023/shape-1.png"
              class="absolute md:block hidden left-0 h-[4.5rem] w-[4.5rem] bottom-0 -translate-x-full ml-3">
         <!-- Ingest Form -->
-        <form id="ingestForm"
-              method="post"
-              onsubmit="handleSubmit(event{% if is_index %}, true{% endif %})">
+        <form id="ingestForm" method="post" onsubmit="handleSubmit(event, true)">
             <!-- Top row: repo URL + Ingest button -->
             <div class="flex md:flex-row flex-col w-full h-full justify-center items-stretch space-y-5 md:space-y-0 md:space-x-5">
                 <!-- Repository URL Input -->
