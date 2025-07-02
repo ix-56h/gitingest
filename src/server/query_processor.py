@@ -103,7 +103,7 @@ async def process_query(
             print(f"{Colors.RED}{exc}{Colors.END}")
 
         return IngestErrorResponse(
-            error="Repository not found. Please make sure it is public." if "405" in str(exc) else "",
+            error=str(exc),
             repo_url=short_repo_url,
         )
 
