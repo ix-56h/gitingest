@@ -55,7 +55,7 @@ class IngestRequest(BaseModel):
     @classmethod
     def validate_pattern(cls, v: str) -> str:
         """Validate pattern field."""
-        return v.strip() if v else ""
+        return v.strip()
 
 
 class IngestSuccessResponse(BaseModel):
@@ -73,7 +73,7 @@ class IngestSuccessResponse(BaseModel):
         File tree structure of the repository.
     content : str
         Processed content from the repository files.
-    default_file_size : int
+    default_max_file_size : int
         The file size slider position used.
     pattern_type : str
         The pattern type used for filtering.
@@ -87,7 +87,7 @@ class IngestSuccessResponse(BaseModel):
     summary: str = Field(..., description="Ingestion summary with token estimates")
     tree: str = Field(..., description="File tree structure")
     content: str = Field(..., description="Processed file content")
-    default_file_size: int = Field(..., description="File size slider position used")
+    default_max_file_size: int = Field(..., description="File size slider position used")
     pattern_type: str = Field(..., description="Pattern type used")
     pattern: str = Field(..., description="Pattern used")
 

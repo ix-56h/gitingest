@@ -65,38 +65,25 @@ async def api_ingest(
             token=token,
         )
 
-        context = await process_query(
+        result = await process_query(
             input_text=ingest_request.input_text,
             slider_position=ingest_request.max_file_size,
             pattern_type=ingest_request.pattern_type,
             pattern=ingest_request.pattern,
             token=ingest_request.token,
         )
-        if "error" in context:
+
+        if isinstance(result, IngestErrorResponse):
             # Return structured error response with 400 status code
-            error_response = IngestErrorResponse(
-                error=context["error"],
-                repo_url=context.get("repo_url", input_text),
-            )
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content=error_response.model_dump(),
+                content=result.model_dump(),
             )
 
         # Return structured success response with 200 status code
-        success_response = IngestSuccessResponse(
-            repo_url=context["repo_url"],
-            short_repo_url=context["short_repo_url"],
-            summary=context["summary"],
-            tree=context["tree"],
-            content=context["content"],
-            default_file_size=context["default_file_size"],
-            pattern_type=context["pattern_type"],
-            pattern=context["pattern"],
-        )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=success_response.model_dump(),
+            content=result.model_dump(),
         )
 
     except ValueError as ve:

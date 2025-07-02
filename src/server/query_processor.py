@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from gitingest.clone import clone_repo
 from gitingest.ingestion import ingest_query
 from gitingest.query_parser import IngestionQuery, parse_query
 from gitingest.utils.git_utils import validate_github_token
+from server.models import IngestErrorResponse, IngestResponse, IngestSuccessResponse
 from server.server_config import (
-    DEFAULT_FILE_SIZE_KB,
-    EXAMPLE_REPOS,
+    DEFAULT_MAX_FILE_SIZE_KB,
     MAX_DISPLAY_SIZE,
 )
 from server.server_utils import Colors, log_slider_to_size
@@ -23,7 +23,7 @@ async def process_query(
     pattern_type: str = "exclude",
     pattern: str = "",
     token: str | None = None,
-) -> dict[str, Any]:
+) -> IngestResponse:
     """Process a query by parsing input, cloning a repository, and generating a summary.
 
     Handle user input, process Git repository data, and prepare
@@ -44,8 +44,8 @@ async def process_query(
 
     Returns
     -------
-    dict[str, Any]
-        A dictionary containing the processed results or an error message.
+    IngestResponse
+        A union type, corresponding to IngestErrorResponse or IngestSuccessResponse
 
     Raises
     ------
@@ -68,16 +68,8 @@ async def process_query(
 
     max_file_size = log_slider_to_size(slider_position)
 
-    context = {
-        "repo_url": input_text,
-        "examples": EXAMPLE_REPOS,
-        "default_file_size": slider_position,
-        "pattern_type": pattern_type,
-        "pattern": pattern,
-        "token": token,
-    }
-
     query: IngestionQuery | None = None
+    short_repo_url = ""
 
     try:
         query = await parse_query(
@@ -91,7 +83,7 @@ async def process_query(
         query.ensure_url()
 
         # Sets the "<user>/<repo>" for the page title
-        context["short_repo_url"] = f"{query.user_name}/{query.repo_name}"
+        short_repo_url = f"{query.user_name}/{query.repo_name}"
 
         clone_config = query.extract_clone_config()
         await clone_repo(clone_config, token=token)
@@ -110,10 +102,10 @@ async def process_query(
             print(f"{Colors.BROWN}WARN{Colors.END}: {Colors.RED}<-  {Colors.END}", end="")
             print(f"{Colors.RED}{exc}{Colors.END}")
 
-        context["error"] = f"Error: {exc}"
-        if "405" in str(exc):
-            context["error_message"] = "Repository not found. Please make sure it is public."
-        return context
+        return IngestErrorResponse(
+            error="Repository not found. Please make sure it is public." if "405" in str(exc) else "",
+            repo_url=short_repo_url,
+        )
 
     if len(content) > MAX_DISPLAY_SIZE:
         content = (
@@ -132,15 +124,16 @@ async def process_query(
         summary=summary,
     )
 
-    context.update(
-        {
-            "summary": summary,
-            "tree": tree,
-            "content": content,
-        },
+    return IngestSuccessResponse(
+        repo_url=input_text,
+        short_repo_url=short_repo_url,
+        summary=summary,
+        tree=tree,
+        content=content,
+        default_max_file_size=slider_position,
+        pattern_type=pattern_type,
+        pattern=pattern,
     )
-
-    return context
 
 
 def _print_query(url: str, max_file_size: int, pattern_type: str, pattern: str) -> None:
@@ -159,7 +152,7 @@ def _print_query(url: str, max_file_size: int, pattern_type: str, pattern: str) 
 
     """
     print(f"{Colors.WHITE}{url:<20}{Colors.END}", end="")
-    if int(max_file_size / 1024) != DEFAULT_FILE_SIZE_KB:
+    if int(max_file_size / 1024) != DEFAULT_MAX_FILE_SIZE_KB:
         print(
             f" | {Colors.YELLOW}Size: {int(max_file_size / 1024)}kb{Colors.END}",
             end="",

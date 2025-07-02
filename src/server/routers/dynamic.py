@@ -34,6 +34,6 @@ async def catch_all(request: Request, full_path: str) -> HTMLResponse:
         {
             "request": request,
             "repo_url": full_path,
-            "default_file_size": 243,
+            "default_max_file_size": 243,
         },
     )
