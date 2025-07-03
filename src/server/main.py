@@ -105,14 +105,14 @@ async def custom_swagger_ui(request: Request) -> HTMLResponse:
 
 
 @app.get("/api", include_in_schema=True)
-@app.get("/api/", include_in_schema=True)
+@app.get("/api/", include_in_schema=False)
 def openapi_json_get() -> JSONResponse:
     """Return the OpenAPI schema (openapi.json)."""
     return JSONResponse(app.openapi())
 
 
-@app.post("/api", include_in_schema=False)
-@app.post("/api/", include_in_schema=True)
+@app.post("/api", include_in_schema=True)
+@app.post("/api/", include_in_schema=False)
 def openapi_json_post() -> JSONResponse:
     """Return the OpenAPI schema (openapi.json)."""
     return JSONResponse(app.openapi())
