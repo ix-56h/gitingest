@@ -1,4 +1,3 @@
-
 function waitForStars() {
     return new Promise((resolve) => {
         const check = () => {
@@ -25,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 value: form,
                 enumerable: true
             });
-            handleSubmit(submitEvent, false);
+            handleSubmit(submitEvent, true);
         });
     }
 });
