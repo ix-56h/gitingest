@@ -102,7 +102,7 @@ async def process_query(
             print(f"{Colors.BROWN}WARN{Colors.END}: {Colors.RED}<-  {Colors.END}", end="")
             print(f"{Colors.RED}{exc}{Colors.END}")
 
-        return IngestErrorResponse(error=str(exc), repo_url=short_repo_url)
+        return IngestErrorResponse(error=str(exc))
 
     if len(content) > MAX_DISPLAY_SIZE:
         content = (

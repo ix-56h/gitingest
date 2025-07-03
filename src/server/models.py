@@ -99,13 +99,10 @@ class IngestErrorResponse(BaseModel):
     ----------
     error : str
         Error message describing what went wrong.
-    repo_url : str
-        The repository URL that failed to process.
 
     """
 
     error: str = Field(..., description="Error message")
-    repo_url: str = Field(..., description="Repository URL that failed")
 
 
 # Union type for API responses

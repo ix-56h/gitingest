@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -100,8 +100,50 @@ async def llm_txt() -> FileResponse:
 
 @app.get("/docs", response_class=HTMLResponse)
 async def custom_swagger_ui(request: Request) -> HTMLResponse:
-    """Render the Swagger UI documentation page inside the Jinja theme."""
+    """Swagger UI documentation."""
     return templates.TemplateResponse("swagger_ui.jinja", {"request": request})
+
+
+@app.get("/api", include_in_schema=True)
+@app.get("/api/", include_in_schema=True)
+def openapi_json_get() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
+
+
+@app.post("/api", include_in_schema=False)
+@app.post("/api/", include_in_schema=True)
+def openapi_json_post() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
+
+
+@app.put("/api", include_in_schema=False)
+@app.put("/api/", include_in_schema=False)
+def openapi_json_put() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
+
+
+@app.delete("/api", include_in_schema=False)
+@app.delete("/api/", include_in_schema=False)
+def openapi_json_delete() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
+
+
+@app.options("/api", include_in_schema=False)
+@app.options("/api/", include_in_schema=False)
+def openapi_json_options() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
+
+
+@app.head("/api", include_in_schema=False)
+@app.head("/api/", include_in_schema=False)
+def openapi_json_head() -> JSONResponse:
+    """Return the OpenAPI schema (openapi.json)."""
+    return JSONResponse(app.openapi())
 
 
 # Include routers for modular endpoints
