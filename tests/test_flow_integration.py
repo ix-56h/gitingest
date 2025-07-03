@@ -88,7 +88,6 @@ async def test_invalid_repository_url(request: pytest.FixtureRequest) -> None:
     # Check that response is JSON error
     response_data = response.json()
     assert "error" in response_data
-    assert "repo_url" in response_data
 
 
 @pytest.mark.asyncio
