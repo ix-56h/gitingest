@@ -3,8 +3,7 @@
 from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
 
-from server.form_types import IntForm, OptStrForm, StrForm
-from server.models import IngestErrorResponse, IngestRequest, IngestSuccessResponse, PatternType
+from server.models import IngestErrorResponse, IngestRequest, IngestSuccessResponse
 from server.query_processor import process_query
 from server.server_utils import limiter
 
@@ -21,50 +20,25 @@ router = APIRouter()
 )
 @limiter.limit("10/minute")
 async def api_ingest(
-    request: Request,  # noqa: ARG001 (unused) pylint: disable=unused-argument
-    input_text: StrForm,
-    max_file_size: IntForm,
-    pattern_type: StrForm = "exclude",
-    pattern: StrForm = "",
-    token: OptStrForm = None,
+    request: Request,  # noqa: ARG001
+    ingest_request: IngestRequest,
 ) -> JSONResponse:
     """Ingest a Git repository and return processed content.
 
-    This endpoint processes a Git repository by cloning it, analyzing its structure,
+    **This endpoint processes a Git repository by cloning it, analyzing its structure,**
     and returning a summary with the repository's content. The response includes
     file tree structure, processed content, and metadata about the ingestion.
 
-    Parameters
-    ----------
-    request : Request
-        FastAPI request object
-    input_text : StrForm
-        Git repository URL or slug to ingest
-    max_file_size : IntForm
-        Maximum file size slider position (0-500) for filtering files
-    pattern_type : StrForm
-        Type of pattern to use for file filtering ("include" or "exclude")
-    pattern : StrForm
-        Glob/regex pattern string for file filtering
-    token : OptStrForm
-        GitHub personal access token (PAT) for accessing private repositories
+    **Parameters**
 
-    Returns
-    -------
-    JSONResponse
-        Success response with ingestion results or error response with appropriate HTTP status code
+    - **ingest_request** (`IngestRequest`): Pydantic model containing ingestion parameters
 
-    """
+    **Returns**
+
+    - **JSONResponse**: Success response with ingestion results or error response with appropriate HTTP status code
+
+    """  # pylint: disable=unused-argument
     try:
-        # Validate input using Pydantic model
-        ingest_request = IngestRequest(
-            input_text=input_text,
-            max_file_size=max_file_size,
-            pattern_type=PatternType(pattern_type),
-            pattern=pattern,
-            token=token,
-        )
-
         result = await process_query(
             input_text=ingest_request.input_text,
             slider_position=ingest_request.max_file_size,
@@ -90,7 +64,7 @@ async def api_ingest(
         # Handle validation errors with 400 status code
         error_response = IngestErrorResponse(
             error=f"Validation error: {ve!s}",
-            repo_url=input_text,
+            repo_url=ingest_request.input_text,
         )
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -101,7 +75,7 @@ async def api_ingest(
         # Handle unexpected errors with 500 status code
         error_response = IngestErrorResponse(
             error=f"Internal server error: {exc!s}",
-            repo_url=input_text,
+            repo_url=ingest_request.input_text,
         )
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

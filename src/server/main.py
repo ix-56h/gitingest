@@ -49,10 +49,9 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 async def health_check() -> dict[str, str]:
     """Health check endpoint to verify that the server is running.
 
-    Returns
-    -------
-    dict[str, str]
-        A JSON object with a "status" key indicating the server's health status.
+    **Returns**
+
+    - **dict[str, str]**: A JSON object with a "status" key indicating the server's health status.
 
     """
     return {"status": "healthy"}

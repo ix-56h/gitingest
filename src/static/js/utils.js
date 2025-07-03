@@ -72,24 +72,19 @@ function handleSubmit(event, showLoadingSpinner = false) {
     const submitButton = form.querySelector('button[type="submit"]');
     if (!submitButton) return;
 
-    const formData = new FormData(form);
-
-    // Update file size
+    // Collect form values into a plain object
+    let data = {};
+    const inputText = form.querySelector('[name="input_text"]');
+    const token = form.querySelector('[name="token"]');
     const slider = document.getElementById('file_size');
-    if (slider) {
-        formData.delete('max_file_size');
-        formData.append('max_file_size', slider.value);
-    }
-
-    // Update pattern type and pattern
     const patternType = document.getElementById('pattern_type');
     const pattern = document.getElementById('pattern');
-    if (patternType && pattern) {
-        formData.delete('pattern_type');
-        formData.delete('pattern');
-        formData.append('pattern_type', patternType.value);
-        formData.append('pattern', pattern.value);
-    }
+
+    if (inputText) data.input_text = inputText.value;
+    if (token) data.token = token.value;
+    if (slider) data.max_file_size = slider.value;
+    if (patternType) data.pattern_type = patternType.value;
+    if (pattern) data.pattern = pattern.value;
 
     const originalContent = submitButton.innerHTML;
 
@@ -107,8 +102,12 @@ function handleSubmit(event, showLoadingSpinner = false) {
         submitButton.classList.add('bg-[#ffb14d]');
     }
 
-    // Submit the form to /api/ingest
-    fetch('/api/ingest', {method: 'POST', body: formData})
+    // Submit the form to /api/ingest as JSON
+    fetch('/api/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
         .then(response => response.json())
         .then(data => {
             // Hide loading overlay
