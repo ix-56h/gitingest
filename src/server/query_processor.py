@@ -10,7 +10,6 @@ from gitingest.ingestion import ingest_query
 from gitingest.query_parser import IngestionQuery, parse_query
 from gitingest.utils.git_utils import validate_github_token
 from server.models import IngestErrorResponse, IngestResponse, IngestSuccessResponse
-
 from server.server_config import MAX_DISPLAY_SIZE
 from server.server_utils import Colors, log_slider_to_size
 

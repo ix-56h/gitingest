@@ -9,14 +9,7 @@ from typing import Final
 from urllib.parse import urlparse
 
 import httpx
-from starlette.status import (
-    HTTP_200_OK,
-    HTTP_301_MOVED_PERMANENTLY,
-    HTTP_302_FOUND,
-    HTTP_401_UNAUTHORIZED,
-    HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
-)
+from starlette.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 from gitingest.utils.compat_func import removesuffix
 from gitingest.utils.exceptions import InvalidGitHubTokenError
@@ -127,19 +120,17 @@ async def check_repo_exists(url: str, token: str | None = None) -> bool:
     async with httpx.AsyncClient(follow_redirects=True) as client:
         try:
             response = await client.head(url, headers=headers)
-            status = response.status_code
-
-            if status in {HTTP_200_OK, HTTP_301_MOVED_PERMANENTLY}:
-                return True
-            # TODO: handle 302 redirects
-            if status in {HTTP_404_NOT_FOUND, HTTP_302_FOUND}:
-                return False
-            if status in {HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN}:
-                return False
-            msg = f"Unexpected HTTP status {status} for {url}"
-            raise RuntimeError(msg)
         except httpx.RequestError:
             return False
+
+    status_code = response.status_code
+
+    if status_code == HTTP_200_OK:
+        return True
+    if status_code in {HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND}:
+        return False
+    msg = f"Unexpected HTTP status {status_code} for {url}"
+    raise RuntimeError(msg)
 
 
 def _parse_github_url(url: str) -> tuple[str, str, str]:
