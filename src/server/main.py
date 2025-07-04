@@ -98,7 +98,7 @@ async def llm_txt() -> FileResponse:
     return FileResponse("static/llm.txt")
 
 
-@app.get("/docs", response_class=HTMLResponse)
+@app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
 async def custom_swagger_ui(request: Request) -> HTMLResponse:
     """Swagger UI documentation."""
     return templates.TemplateResponse("swagger_ui.jinja", {"request": request})
@@ -111,7 +111,7 @@ def openapi_json_get() -> JSONResponse:
     return JSONResponse(app.openapi())
 
 
-@app.post("/api", include_in_schema=True)
+@app.post("/api", include_in_schema=False)
 @app.post("/api/", include_in_schema=False)
 def openapi_json_post() -> JSONResponse:
     """Return the OpenAPI schema (openapi.json)."""
