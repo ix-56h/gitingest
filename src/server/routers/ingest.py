@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from server.models import IngestErrorResponse, IngestRequest, IngestSuccessResponse
 from server.query_processor import process_query
-from server.server_config import DEFAULT_MAX_FILE_SIZE_KB
+from server.server_config import MAX_DISPLAY_SIZE
 from server.server_utils import limiter
 
 router = APIRouter()
@@ -95,7 +95,7 @@ async def api_ingest_get(
     request: Request,  # noqa: ARG001
     user: str,
     repository: str,
-    max_file_size: int = DEFAULT_MAX_FILE_SIZE_KB,
+    max_file_size: int = MAX_DISPLAY_SIZE,
     pattern_type: str = "exclude",
     pattern: str = "",
     token: str = "",
