@@ -122,6 +122,7 @@ async def process_query(
         repo_url=input_text,
         short_repo_url=short_repo_url,
         summary=summary,
+        ingest_id=query.id,
         tree=tree,
         content=content,
         default_max_file_size=slider_position,

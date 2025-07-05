@@ -172,6 +172,9 @@ function handleSuccessfulResponse(data) {
     // Show results section
     showResults();
 
+    // Store the ingest_id for download functionality
+    window.currentIngestId = data.ingest_id;
+
     // Set plain text content for summary, tree, and content
     document.getElementById('result-summary').value = data.summary || '';
     document.getElementById('directory-structure-content').value = data.tree || '';
@@ -268,33 +271,36 @@ function copyFullDigest() {
 }
 
 function downloadFullDigest() {
-    const summary = document.getElementById('result-summary').value;
-    const directoryStructure = document.getElementById('directory-structure-content').value;
-    const filesContent = document.querySelector('.result-text').value;
+    // Check if we have an ingest_id
+    if (!window.currentIngestId) {
+        console.error('No ingest_id available for download');
 
-    // Create the full content with all three sections
-    const fullContent = `${summary}\n${directoryStructure}\n${filesContent}`;
-
-    // Create a blob with the content
-    const blob = new Blob([fullContent], { type: 'text/plain' });
-
-    // Create a download link
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-
-    a.href = url;
-    a.download = 'digest.txt';
-    document.body.appendChild(a);
-    a.click();
-
-    // Clean up
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+        return;
+    }
 
     // Show feedback on the button
     const button = document.querySelector('[onclick="downloadFullDigest()"]');
     const originalText = button.innerHTML;
 
+    button.innerHTML = `
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Downloading...
+    `;
+
+    // Create a download link to the server endpoint
+    const a = document.createElement('a');
+
+    a.href = `/api/download/file/${window.currentIngestId}`;
+    a.download = 'digest.txt';
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    document.body.removeChild(a);
+
+    // Update button to show success
     button.innerHTML = `
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

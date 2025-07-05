@@ -1,8 +1,9 @@
 """Ingest endpoint for the API."""
 
-from fastapi import APIRouter, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Request, status
+from fastapi.responses import FileResponse, JSONResponse
 
+from gitingest.config import TMP_BASE_PATH
 from server.models import IngestErrorResponse, IngestRequest, IngestSuccessResponse
 from server.query_processor import process_query
 from server.server_config import MAX_DISPLAY_SIZE
@@ -157,3 +158,46 @@ async def api_ingest_get(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response.model_dump(),
         )
+
+
+@router.get("/api/download/file/{ingest_id}", response_class=FileResponse)
+async def download_ingest(ingest_id: str) -> FileResponse:
+    """Return the first ``*.txt`` file produced for ``ingest_id`` as a download.
+
+    Parameters
+    ----------
+    ingest_id : str
+        Identifier that the ingest step emitted (also the directory name that stores the artefacts).
+
+    Returns
+    -------
+    FileResponse
+        Streamed response with media type ``text/plain`` that prompts the browser to download the file.
+
+    Raises
+    ------
+    HTTPException
+        **404** - digest directory is missing or contains no ``*.txt`` file.
+        **403** - the process lacks permission to read the directory or file.
+
+    """
+    directory = TMP_BASE_PATH / ingest_id
+
+    if not directory.is_dir():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Digest {ingest_id!r} not found")
+
+    try:
+        first_txt_file = next(directory.glob("*.txt"))
+    except StopIteration as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No .txt file found for digest {ingest_id!r}",
+        ) from exc
+
+    try:
+        return FileResponse(path=first_txt_file, media_type="text/plain", filename=first_txt_file.name)
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Permission denied for {first_txt_file}",
+        ) from exc
