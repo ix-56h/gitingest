@@ -4,25 +4,18 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
 from gitingest.config import TMP_BASE_PATH
-from server.models import IngestErrorResponse, IngestRequest, IngestSuccessResponse
-from server.query_processor import process_query
+from server.models import IngestRequest
+from server.routers_uitls import COMMON_INGEST_RESPONSES, _perform_ingestion
 from server.server_config import MAX_DISPLAY_SIZE
 from server.server_utils import limiter
 
 router = APIRouter()
 
 
-@router.post(
-    "/api/ingest",
-    responses={
-        status.HTTP_200_OK: {"model": IngestSuccessResponse, "description": "Successful ingestion"},
-        status.HTTP_400_BAD_REQUEST: {"model": IngestErrorResponse, "description": "Bad request or processing error"},
-        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": IngestErrorResponse, "description": "Internal server error"},
-    },
-)
+@router.post("/api/ingest", responses=COMMON_INGEST_RESPONSES)
 @limiter.limit("10/minute")
 async def api_ingest(
-    request: Request,  # noqa: ARG001
+    request: Request,  # noqa: ARG001 (unused-function-argument) # pylint: disable=unused-argument
     ingest_request: IngestRequest,
 ) -> JSONResponse:
     """Ingest a Git repository and return processed content.
@@ -39,61 +32,20 @@ async def api_ingest(
 
     - **JSONResponse**: Success response with ingestion results or error response with appropriate HTTP status code
 
-    """  # pylint: disable=unused-argument
-    try:
-        result = await process_query(
-            input_text=ingest_request.input_text,
-            slider_position=ingest_request.max_file_size,
-            pattern_type=ingest_request.pattern_type,
-            pattern=ingest_request.pattern,
-            token=ingest_request.token,
-        )
-
-        if isinstance(result, IngestErrorResponse):
-            # Return structured error response with 400 status code
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content=result.model_dump(),
-            )
-
-        # Return structured success response with 200 status code
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=result.model_dump(),
-        )
-
-    except ValueError as ve:
-        # Handle validation errors with 400 status code
-        error_response = IngestErrorResponse(
-            error=f"Validation error: {ve!s}",
-        )
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=error_response.model_dump(),
-        )
-
-    except Exception as exc:
-        # Handle unexpected errors with 500 status code
-        error_response = IngestErrorResponse(
-            error=f"Internal server error: {exc!s}",
-        )
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response.model_dump(),
-        )
+    """
+    return await _perform_ingestion(
+        input_text=ingest_request.input_text,
+        max_file_size=ingest_request.max_file_size,
+        pattern_type=ingest_request.pattern_type,
+        pattern=ingest_request.pattern,
+        token=ingest_request.token,
+    )
 
 
-@router.get(
-    "/api/{user}/{repository}",
-    responses={
-        status.HTTP_200_OK: {"model": IngestSuccessResponse, "description": "Successful ingestion"},
-        status.HTTP_400_BAD_REQUEST: {"model": IngestErrorResponse, "description": "Bad request or processing error"},
-        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": IngestErrorResponse, "description": "Internal server error"},
-    },
-)
+@router.get("/api/{user}/{repository}", responses=COMMON_INGEST_RESPONSES)
 @limiter.limit("10/minute")
 async def api_ingest_get(
-    request: Request,  # noqa: ARG001
+    request: Request,  # noqa: ARG001 (unused-function-argument) # pylint: disable=unused-argument
     user: str,
     repository: str,
     max_file_size: int = MAX_DISPLAY_SIZE,
@@ -119,45 +71,14 @@ async def api_ingest_get(
 
     **Returns**
     - **JSONResponse**: Success response with ingestion results or error response with appropriate HTTP status code
-    """  # pylint: disable=unused-argument
-    try:
-        effective_input_text = f"{user}/{repository}"
-        result = await process_query(
-            input_text=effective_input_text,
-            slider_position=max_file_size,
-            pattern_type=pattern_type,
-            pattern=pattern,
-            token=token or None,
-        )
-
-        if isinstance(result, IngestErrorResponse):
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content=result.model_dump(),
-            )
-
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=result.model_dump(),
-        )
-
-    except ValueError as ve:
-        error_response = IngestErrorResponse(
-            error=f"Validation error: {ve!s}",
-        )
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=error_response.model_dump(),
-        )
-
-    except Exception as exc:
-        error_response = IngestErrorResponse(
-            error=f"Internal server error: {exc!s}",
-        )
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=error_response.model_dump(),
-        )
+    """
+    return await _perform_ingestion(
+        input_text=f"{user}/{repository}",
+        max_file_size=max_file_size,
+        pattern_type=pattern_type,
+        pattern=pattern,
+        token=token or None,
+    )
 
 
 @router.get("/api/download/file/{ingest_id}", response_class=FileResponse)
